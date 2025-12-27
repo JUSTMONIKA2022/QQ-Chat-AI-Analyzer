@@ -11,6 +11,7 @@
 
 > 这是***qce***的地址喵~
 > *https://github.com/shuakami/qq-chat-exporter*
+> 别忘了点个星星再走哦~
 
 本工具全部由**谷歌**研发的***Gemini-3-pro-preview***实现，创作环境为**字节跳动**旗下的***trae IDE***。<br>是**货真价实的AIGC**哦，因为作者本人是**代码苦手**的说~
 
@@ -56,4 +57,4 @@
 
 ### 感谢 [qq-chat-exporter](https://github.com/shuakami/qq-chat-exporter) 开发者大佬的开源。
 
-### 最后感谢使用本工具喵~<br>若觉得用着顺手记得点赞转发哦，若有建议和意见欢迎联系开发者反馈喵。
+### 最后感谢使用本工具喵~<br>若觉得用着顺手记得给个星星哦，若有建议和意见欢迎联系开发者反馈喵。
