@@ -9,11 +9,7 @@
 
 这是依赖于***Github***上的开源项目***qq-chat-exporter-master***搭建的**QQ**群聊消息总结分析工具，<br>出于**学习科研目的**而开发。
 
-> 这是***qce***的地址喵~
-
-> *https://github.com/shuakami/qq-chat-exporter*
-
-> 别忘了点个星星再走哦~
+> 这是***qce***的地址喵~<br>*https://github.com/shuakami/qq-chat-exporter*<br>别忘了点个星星再走哦~
 
 本工具全部由**谷歌**研发的***Gemini-3-pro-preview***实现，创作环境为**字节跳动**旗下的***trae IDE***。<br>是**货真价实的AIGC**哦，因为作者本人是**代码苦手**的说~
 
