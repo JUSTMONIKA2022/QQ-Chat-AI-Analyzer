@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        :root {
+            --primary-color: {{ summary.style_config.primary_color if summary.style_config else '#FF4B4B' }};
+            --secondary-color: {{ summary.style_config.secondary_color if summary.style_config else '#FFD700' }};
+            --bg-color: {{ summary.style_config.background_color if summary.style_config else '#F0F2F5' }};
+            --text-color: {{ summary.style_config.text_color if summary.style_config else '#333333' }};
+            --card-bg: {{ summary.style_config.card_bg if summary.style_config else '#FFFFFF' }};
+            --font-stack: {{ summary.style_config.font_family if summary.style_config else "'PingFang SC', 'Microsoft YaHei', sans-serif" }};
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        body {
+            font-family: var(--font-stack);
+            background-color: var(--bg-color);
+            background-image: linear-gradient(135deg, var(--bg-color) 0%, rgba(255,255,255,0.5) 100%);
+            color: var(--text-color);
+            margin: 0;
+            padding: 40px 20px;
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        header {
+            text-align: center;
+            padding: 80px 40px;
+            margin-bottom: 60px;
+            background: var(--glass-bg);
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 6px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            font-weight: 800;
+            background: linear-gradient(120deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .meta-info {
+            color: var(--text-color);
+            opacity: 0.7;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .section-card {
+            background: var(--glass-bg);
+            border-radius: 24px;
+            padding: 50px;
+            margin-bottom: 50px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255,255,255,0.6);
+            backdrop-filter: blur(10px);
+        }
+        
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-left: 6px solid var(--secondary-color);
+            padding-left: 25px;
+            font-size: 2.2em;
+            margin-bottom: 40px;
+            margin-top: 0;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        
+        h3 {
+            color: var(--text-color);
+            font-size: 1.6em;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        h3::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(90deg, var(--secondary-color), transparent);
+            margin-left: 20px;
+            opacity: 0.3;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: #fff;
+            padding: 30px 20px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: var(--secondary-color);
+        }
+
+        .stat-value {
+            font-size: 3em;
+            font-weight: 900;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            line-height: 1;
+        }
+        
+        .stat-label {
+            font-size: 1.1em;
+            color: var(--text-color);
+            opacity: 0.8;
+            font-weight: 500;
+        }
+
+        /* Keywords Tag Cloud */
+        .keywords-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            padding: 30px 0 0;
+        }
+        
+        .keyword-tag {
+            background: #fff;
+            color: var(--text-color);
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1em;
+            border: 2px solid var(--secondary-color);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: default;
+        }
+        
+        .keyword-tag:hover {
+            transform: scale(1.1) rotate(-2deg);
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #fff;
+            box-shadow: var(--shadow-md);
+        }
+        
+        /* Timeline Styles */
+        .timeline-container ul {
+            list-style: none;
+            padding: 0;
+            position: relative;
+            margin: 20px 0;
+        }
+        
+        .timeline-container ul:before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            bottom: 0;
+            left: 24px;
+            width: 4px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 2px;
+        }
+        
+        .timeline-container li {
+            margin-bottom: 40px;
+            padding-left: 70px;
+            position: relative;
+        }
+        
+        .timeline-container li:last-child {
+            margin-bottom: 0;
+        }
+        
+        .timeline-container li:before {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 6px;
+            width: 24px;
+            height: 24px;
+            background: var(--bg-color);
+            border-radius: 50%;
+            border: 5px solid var(--primary-color);
+            box-shadow: 0 0 0 5px rgba(255,255,255,0.5);
+            z-index: 1;
+            transition: all 0.3s;
+        }
+
+        .timeline-container li:hover:before {
+            background: var(--secondary-color);
+            transform: scale(1.2);
+        }
+        
+        .timeline-container li strong {
+            display: block;
+            font-size: 1.2em;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        /* Ranking Tables */
+        .ranking-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 30px;
+        }
+        
+        .ranking-table th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            padding: 18px 20px;
+            text-align: left;
+            font-size: 1.05em;
+        }
+        
+        .ranking-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            color: var(--text-color);
+        }
+        
+        .ranking-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .ranking-table tr:hover td {
+            background-color: #fafafa;
+        }
+        
+        .ranking-table tr td:first-child {
+            font-weight: bold;
+            color: var(--secondary-color);
+            width: 60px;
+        }
+
+        /* AI Content Styles */
+        .ai-content p {
+            margin-bottom: 20px;
+            text-align: justify;
+            font-size: 1.1em;
+        }
+        
+        .ai-content blockquote {
+            border-left: 4px solid var(--secondary-color);
+            margin: 20px 0;
+            padding: 15px 25px;
+            background: rgba(0,0,0,0.02);
+            border-radius: 0 12px 12px 0;
+            font-style: italic;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2em; }
+            .section-card { padding: 30px 20px; }
+            header { padding: 40px 20px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Ranking Tables */
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .ranking-table th, .ranking-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .ranking-table th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: normal;
+        }
+        
+        .ranking-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .ranking-table tr:hover {
+            background-color: #fff5f5;
+        }
+
+        /* AI Content Styles */
+        .ai-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .ai-content ul {
+            padding-left: 20px;
+        }
+        
+        .ai-content li {
+            margin-bottom: 8px;
+        }
+        
+        /* Specific Styles for Sections */
+        .portrait-tag {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            color: #999;
+            font-size: 0.8em;
+            padding-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>{{ title }}</h1>
+            <div class="meta-info">生成时间: {{ generated_at }}</div>
+            {% if summary.keywords %}
+            <div class="keywords-container">
+                {% for keyword in summary.keywords %}
+                <span class="keyword-tag">{{ keyword }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </header>
+
+        <!-- 1. 年度群画像 -->
+        <div class="section-card">
+            <h2>🎨 年度群画像</h2>
+            <div class="ai-content">
+                {{ summary.portrait | safe }}
+            </div>
+        </div>
+
+        <!-- Timeline Section -->
+        {% if summary.timeline %}
+        <div class="section-card timeline-container">
+            {{ summary.timeline | safe }}
+        </div>
+        {% endif %}
+
+        <!-- 2. 季度深度复盘 -->
+        <div class="section-card">
+            <h2>📅 季度深度复盘</h2>
+            <div class="ai-content">
+                {{ summary.quarterly_review | safe }}
+            </div>
+        </div>
+
+        <!-- 3. 群成员锐评 -->
+        <div class="section-card">
+            <h2>🌶️ 群成员锐评</h2>
+            <div class="ai-content">
+                {{ summary.roasts | safe }}
+            </div>
+        </div>
+
+        <!-- 4. 硬核统计 -->
+        <div class="section-card">
+            <h2>📊 硬核统计 (Hardcore Stats)</h2>
+            
+            <!-- Basic Stats -->
+            <h3>基础数据概览</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.total_messages }}</div>
+                    <div class="stat-label">总消息数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.total_users }}</div>
+                    <div class="stat-label">参与人数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.total_images }}</div>
+                    <div class="stat-label">图片/表情</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.days_covered }}</div>
+                    <div class="stat-label">跨越天数</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <!-- Talkative Rank -->
+                <div>
+                    <h3>🏆 龙虎榜 (Top Speakers)</h3>
+                    <table class="ranking-table">
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>用户</th>
+                                <th>消息数</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in rankings.message_rank %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ row.user_name }}</td>
+                                <td>{{ row.count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Image Rank -->
+                <div>
+                    <h3>🖼️ 图王争霸 (Image King)</h3>
+                    <table class="ranking-table">
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>用户</th>
+                                <th>发图数</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in rankings.image_rank %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ row.user_name }}</td>
+                                <td>{{ row.count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+                <!-- Night Owl -->
+                <div>
+                    <h3>🦉 守夜人 (Night Owl 0-5点)</h3>
+                    <table class="ranking-table">
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>用户</th>
+                                <th>夜猫指数</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in rankings.night_owl_rank %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ row.user_name }}</td>
+                                <td>{{ row.count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Early Bird -->
+                <div>
+                    <h3>🐦 早起鸟 (Early Bird 5-8点)</h3>
+                    <table class="ranking-table">
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>用户</th>
+                                <th>早起指数</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in rankings.early_bird_rank %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ row.user_name }}</td>
+                                <td>{{ row.count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. 终章 -->
+        <div class="section-card">
+            <h2>✨ 年度终章</h2>
+            
+            <div class="ai-content">
+                {{ summary.awards | safe }}
+            </div>
+
+            <div class="ai-content" style="margin-top: 30px;">
+                {{ summary.anime_theater | safe }}
+            </div>
+
+            <div class="ai-content" style="margin-top: 30px;">
+                {{ summary.moments | safe }}
+            </div>
+
+            <div class="ai-content" style="margin-top: 30px;">
+                {{ summary.essay | safe }}
+            </div>
+        </div>
+
+        <footer>
+            Generated by QQChatAnalyzer AI
+        </footer>
+    </div>
+</body>
+</html>
