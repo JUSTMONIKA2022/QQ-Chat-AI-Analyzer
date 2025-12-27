@@ -52,4 +52,6 @@
 **第四步：获取报告**
 <br>进度条走完后，点击下载按钮保存 HTML 报告。
 
+### 感谢 [qq-chat-exporter](https://github.com/shuakami/qq-chat-exporter) 开发者大佬的开源。
+
 ### 最后感谢使用本工具喵~<br>若觉得用着顺手记得点赞转发哦，若有建议和意见欢迎联系开发者反馈喵。
