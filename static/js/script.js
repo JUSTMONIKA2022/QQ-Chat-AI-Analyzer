@@ -351,7 +351,7 @@ async function loadConfig() {
     }
 }
 
-async function saveConfig() {
+async function saveConfig(successMsg = '✅ 配置已保存') {
     const config = {
         mode: document.getElementById('llm-mode').value,
         base_url: document.getElementById('api-base').value,
@@ -376,7 +376,7 @@ async function saveConfig() {
         });
         const data = await res.json();
         if (data.status === 'success') {
-            alert('✅ 配置已保存');
+            alert(successMsg);
         } else {
             alert('❌ 保存失败: ' + data.message);
         }
