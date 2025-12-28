@@ -91,6 +91,10 @@ class PromptManager:
    - 角色分配：将群里的活跃分子分配为类似“仁菜”、“桃香”等角色。
             """
         elif theme == "custom":
+            if not custom_prompt or not custom_prompt.strip():
+                return """
+   - **主题要求**：用户选择了自定义主题但未输入内容。请自由发挥，选择一个充满戏剧性的 ACGN 主题。
+                """
             return f"""
    - **主题要求**：请使用用户自定义的主题：**{custom_prompt}**。
    - 请严格按照该主题的风格和设定编写剧本。

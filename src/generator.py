@@ -83,7 +83,13 @@ class ReportGenerator:
             if clean_response.endswith("```"):
                 clean_response = clean_response[:-3]
                 
-            return json.loads(clean_response)
+            result = json.loads(clean_response)
+            
+            # Ensure anime_theater exists (fallback for missing key)
+            if "anime_theater" not in result or not result["anime_theater"]:
+                result["anime_theater"] = "<h3>动漫IP小剧场</h3><p>（AI 似乎忘了生成小剧场，可能是因为 Token 限制或遗漏。请尝试增加 Token 预算或重试。）</p>"
+                
+            return result
         except Exception as e:
              print(f"Error in generating annual report: {e}")
              return {
