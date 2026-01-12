@@ -1,0 +1,13 @@
+{
+  "mode": "default",
+  "base_url": "https://api.openai.com/v1",
+  "api_key": "",
+  "model": "gpt-4o",
+  "model_map": "",
+  "model_reduce": "",
+  "model_refine": "",
+  "max_tokens": 128000,
+  "anime_theme": "default",
+  "custom_theme_prompt": "",
+  "enhance_mode": false
+}

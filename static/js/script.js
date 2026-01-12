@@ -384,3 +384,37 @@ async function saveConfig(successMsg = '✅ 配置已保存') {
         alert('❌ 保存失败: ' + e.message);
     }
 }
+
+async function testConnection() {
+    const btn = document.getElementById('test-conn-btn');
+    const originalText = btn.innerText;
+    btn.innerText = '⏳ 测试中...';
+    btn.disabled = true;
+
+    const config = {
+        mode: document.getElementById('llm-mode').value,
+        base_url: document.getElementById('api-base').value,
+        api_key: document.getElementById('api-key').value,
+        model: document.getElementById('model-name').value
+    };
+
+    try {
+        const res = await fetch('/api/test_connection', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(config)
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            alert('✅ ' + data.message);
+        } else {
+            alert('❌ ' + data.message);
+        }
+    } catch (e) {
+        alert('❌ 网络请求失败: ' + e.message);
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    }
+}

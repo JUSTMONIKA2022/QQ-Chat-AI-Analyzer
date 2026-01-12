@@ -374,6 +374,30 @@ def handle_config():
         except Exception as e:
             return jsonify({'status': 'error', 'message': str(e)})
 
+@app.route('/api/test_connection', methods=['POST'])
+def test_connection_api():
+    """
+    测试 LLM API 连接路由
+    """
+    try:
+        config = request.json
+        api_key = config.get('api_key')
+        base_url = config.get('base_url')
+        model = config.get('model')
+        mode = config.get('mode', 'default')
+        
+        print(f"[Debug] Received Test Connection Request: Mode={mode}, BaseURL={base_url}, Model={model}")
+        
+        # 临时实例化 Client 进行测试
+        client = LLMClient(mode=mode, api_key=api_key, base_url=base_url, model=model)
+        
+        result = client.test_connection()
+        return jsonify(result)
+        
+    except Exception as e:
+        print(f"[Error] Test Connection Failed: {e}")
+        return jsonify({'success': False, 'message': f"服务器内部错误: {str(e)}"})
+
 @app.route('/download/<filename>')
 def download_file(filename):
     return send_from_directory(OUTPUT_FOLDER, filename, as_attachment=True)

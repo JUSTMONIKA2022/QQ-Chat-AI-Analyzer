@@ -95,7 +95,10 @@
         </div>
 
         <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee;">
-            <button class="btn-primary" onclick="saveConfig()" style="width: 100%; background-color: #4CAF50;">💾 保存配置到本地</button>
+            <div class="form-group" style="display: flex; gap: 10px;">
+                <button class="btn-primary" onclick="saveConfig()" style="flex: 1;">💾 保存配置到本地</button>
+                <button id="test-conn-btn" class="btn-primary" onclick="testConnection()" style="flex: 1; background-color: #2196F3;">🔌 测试连接</button>
+            </div>
             <p style="font-size: 0.75rem; color: #ff4b4b; margin-top: 8px;">
                 ⚠️ 注意：配置将以明文形式保存在本地 config.json 文件中，请确保您的使用环境安全。
             </p>

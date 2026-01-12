@@ -65,20 +65,104 @@ class LLMClient:
         
         # 1. 尝试真实调用
         if self.client:
-            try:
-                response = self.client.chat.completions.create(
-                    model=target_model,
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt}
-                    ]
-                )
-                return response.choices[0].message.content
-            except Exception as e:
-                print(f"[Error] API Call Failed: {e}. Falling back to Mock.")
+            # 简单重试机制 (Max 2 times)
+            max_retries = 2
+            for attempt in range(max_retries):
+                try:
+                    print(f"[Info] Sending request to {target_model} (Attempt {attempt+1}/{max_retries})...")
+                    response = self.client.chat.completions.create(
+                        model=target_model,
+                        messages=[
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": user_prompt}
+                        ],
+                        timeout=60  # 设置 60s 超时
+                    )
+                    content = response.choices[0].message.content
+                    if not content:
+                        raise ValueError("Empty response from LLM")
+                    return content
+                    
+                except Exception as e:
+                    error_msg = str(e)
+                    print(f"[Error] API Call Failed (Attempt {attempt+1}): {error_msg}")
+                    
+                    # 如果是最后一次尝试，且是自定义模式，则返回错误 UI
+                    if attempt == max_retries - 1:
+                        if self.mode != LLM_MODE_DEFAULT:
+                            print(f"[Error] All retries failed. Returning error message to UI.")
+                            return f"""
+                            <div style="border: 2px solid #ff4444; padding: 15px; background: #fff0f0; color: #cc0000; border-radius: 8px; margin: 20px 0; font-family: sans-serif;">
+                                <h3 style="margin-top:0; color: #cc0000;">⚠️ AI 生成失败 (API Error)</h3>
+                                <div style="margin-bottom: 10px;">
+                                    <strong>错误信息:</strong> <code style="background: #eee; padding: 2px 5px; border-radius: 4px;">{error_msg}</code>
+                                </div>
+                                <ul style="padding-left: 20px; color: #666;">
+                                    <li><strong>模型:</strong> {target_model}</li>
+                                    <li><strong>地址:</strong> {str(self.client.base_url)}</li>
+                                    <li><strong>建议:</strong> 请检查 API Key 余额、网络连通性或模型名称是否正确。</li>
+                                </ul>
+                            </div>
+                            """
+                    # 否则继续下一次重试
+                    import time
+                    time.sleep(1) # Backoff
         
-        # 2. Mock 回退 (用于演示或无 Key 情况)
-        return self._mock_response(user_prompt)
+        # 2. Mock 回退 (仅在默认模式或无 Client 时触发)
+        if self.mode == LLM_MODE_DEFAULT:
+             print("[Info] Using Mock response (Default Mode).")
+             return self._mock_response(user_prompt)
+        else:
+             # Custom 模式下如果没有 Client 初始化成功 (比如一开始 Key 就空的)，也返回错误
+             return f"""
+             <div style="border: 2px solid #ff9800; padding: 15px; background: #fff8e1; color: #e65100; border-radius: 8px;">
+                <h3>⚠️ 客户端未初始化</h3>
+                <p>请先在左侧配置并保存有效的 API Key。</p>
+             </div>
+             """
+
+    def test_connection(self) -> dict:
+        """
+        测试 API 连接状态 (自检功能)。
+        """
+        # 意义: 验证配置有效性
+        # 作用: 发送极简请求检测连通性，不吞没异常
+        # 关联: 前端“测试连接”按钮
+        
+        if not self.client:
+             if self.mode == LLM_MODE_DEFAULT:
+                 return {"success": False, "message": "未检测到有效的 API Key。请检查环境变量 OPENAI_API_KEY 是否设置。"}
+             else:
+                 return {"success": False, "message": "客户端初始化失败。可能是 API Key 为空或 openai 库未安装。"}
+        
+        # 获取实际使用的 Base URL (OpenAI Client 会自动处理末尾斜杠等)
+        actual_url = str(self.client.base_url)
+        print(f"[Debug] Testing Connection -> URL: {actual_url}, Key: {self.api_key[:8]}***")
+
+        try:
+            # 发送一个极简的测试请求
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "user", "content": "Hi"}],
+                max_tokens=5
+            )
+            model_used = response.model
+            return {
+                "success": True, 
+                "message": f"连接成功！\n\n✅ 目标地址: {actual_url}\n✅ 响应模型: {model_used}\n✅ 状态: 通信正常"
+            }
+        except Exception as e:
+            error_msg = str(e)
+            print(f"[Debug] Connection Failed: {error_msg}")
+            # 尝试提取更友好的错误信息
+            if "401" in error_msg:
+                return {"success": False, "message": f"认证失败 (401)：请检查您的 API Key 是否正确。\n详细信息: {error_msg}"}
+            elif "404" in error_msg:
+                return {"success": False, "message": f"请求失败 (404)：可能是 API Base URL 错误或模型名称不正确。\n目标地址: {actual_url}\n详细信息: {error_msg}"}
+            elif "429" in error_msg:
+                return {"success": False, "message": f"请求过多 (429)：您的账户可能已欠费或达到速率限制。\n详细信息: {error_msg}"}
+            else:
+                return {"success": False, "message": f"连接测试失败：{error_msg}\n目标地址: {actual_url}"}
 
     def _mock_response(self, prompt: str) -> str:
         """
